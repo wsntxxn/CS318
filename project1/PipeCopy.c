@@ -12,7 +12,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#define MAX_SIZE 8192
+#define MAX_LINE 8192
 
 int main(int argc,char **argv){
   if(argc != 3){
@@ -33,11 +33,11 @@ int main(int argc,char **argv){
 		exit(1);
 	}
 
-	void *buffer = malloc(MAX_SIZE);
+	void *buffer = malloc(MAX_LINE);
 	int myPipe[2];
 	int status;
 	char *OutPipe;
-	char InPipe[MAX_SIZE];
+	char InPipe[MAX_LINE];
 
 	if(pipe(myPipe)==0){
 
@@ -47,7 +47,7 @@ int main(int argc,char **argv){
 		}
 		else if(cpid == 0){ // child process, read from file and write to pipe
 			close(myPipe[0]);
-			read(srcFd, buffer, MAX_SIZE);//read source file to buffer
+			read(srcFd, buffer, MAX_LINE);//read source file to buffer
 			OutPipe = (char *)buffer;
 			if(write(myPipe[1], OutPipe, strlen(OutPipe)+1) == -1)//write content from buffer to write-end pipe
 				perror("Write pipe");
@@ -60,7 +60,7 @@ int main(int argc,char **argv){
     	printf("Child process %d exit with status %d\n", cpid, status);
 			close(myPipe[1]);
 
-			if(read(myPipe[0], InPipe, MAX_SIZE ) == -1)//read content from read-end pipe to Inpipe
+			if(read(myPipe[0], InPipe, MAX_LINE ) == -1)//read content from read-end pipe to Inpipe
 				perror("Read pipe");
         write(desFd, InPipe, strlen(InPipe));
         close(myPipe[0]);
